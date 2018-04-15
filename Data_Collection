@@ -1,0 +1,65 @@
+import requests, re
+import pandas as pd
+from time import sleep
+from bs4 import BeautifulSoup
+
+
+def parse_page(html, df):
+    soup = BeautifulSoup(html, 'html.parser')
+    listerlist = soup.find_all('div', class_ = "lister-item mode-advanced")
+    
+    imgList = [movieItem.find('img') for movieItem in listerlist]
+    nameList = [imgItem["alt"] for imgItem in imgList]
+    
+    ratingsRaw = [movieItem.find("strong") for movieItem in listerlist]
+    ratings = [float(rawRating.text) for rawRating in ratingsRaw]
+
+    yearsRaw = [movieItem.find("span", class_ = "lister-item-year text-muted unbold") for movieItem in listerlist]
+    years = [int(re.findall("\d{4}", rawYear.text)[0]) for rawYear in yearsRaw]
+    # years = [int(rawYear.text[1:-1]) for rawYear in yearsRaw ]
+    genresRaw = [movieItem.find("span", class_ = "genre") for movieItem in listerlist]
+    genres = [(list(map(lambda x: x.strip(), rawGenre.text.split(","))) if (rawGenre !=None) else []) for rawGenre in genresRaw]
+    for i in range(len(nameList)):  
+        info = dict()
+        info["Name"] = nameList[i]
+        info["Rating"] = ratings[i]
+        info["Year"] =  years[i]
+        for GENRE in GENRES:
+            info["Genre_" + GENRE] = (int(GENRE in genres[i]))
+        df = df.append(info, ignore_index=True)
+
+    nextRaw = soup.select("a.lister-page-next.next-page")
+    nextURL = nextRaw[0]["href"] if (len(nextRaw) > 0) else None
+    if (nextURL != None):
+        nextURL = "http://www.imdb.com/search/title"+nextURL
+    return(df, nextURL)
+
+# parse_page(html1)
+GENRES = ['Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 
+'Fantasy', 'Film-Noir', 'Game-Show', 'History', 'Horror', 'Music', 'Musical', 'Mystery', 'News', 'Reality-TV', 
+'Romance', 'Sci-Fi', 'Sport', 'Talk-Show', 'Thriller', 'War', 'Western']
+
+def parseAllAfter1950(url):
+    df = pd.DataFrame(columns=['Name', "Rating", "Year", 
+                                "Genre_Action", "Genre_Adventure", "Genre_Animation",
+                                "Genre_Biography", "Genre_Comedy", "Genre_Crime", 
+                                "Genre_Documentary", "Genre_Drama", "Genre_Family",
+                                "Genre_Fantasy", "Genre_Film-Noir", "Genre_Game-Show",
+                                "Genre_History", "Genre_Horror", "Genre_Music",
+                                "Genre_Musical", "Genre_Mystery", "Genre_News", 
+                                "Genre_Reality-TV", "Genre_Romance", "Genre_Sci-Fi",
+                                "Genre_Sport", "Genre_Talk-Show", "Genre_Thriller",
+                                "Genre_War", "Genre_Western"])
+    while(url):
+        html = requests.get(url).text
+        (df, url) = parse_page(html, df)
+        sleep(0.2)
+    df.to_pickle("movies5.pkl")
+    df.to_csv("movie_data5", sep = "\t", encoding = "utf-8")
+    
+link = "http://www.imdb.com/search/title?title_type=feature&release_date=1950-01-01,&num_votes=1,&countries=us&sort=release_date,asc"
+link2 = "http://www.imdb.com/search/title?title_type=feature&release_date=1985-10-04,&num_votes=1,&countries=us&sort=release_date,asc"
+link3 = "http://www.imdb.com/search/title?title_type=feature&release_date=2001-01-01,&num_votes=1,&countries=us&count=250&sort=release_date,asc"
+link4 = "http://www.imdb.com/search/title?title_type=feature&release_date=2009-01-01,&num_votes=1,&countries=us&count=250&sort=release_date,asc"
+link5 = "http://www.imdb.com/search/title?title_type=feature&release_date=2014-01-01,&num_votes=1,&countries=us&count=250&sort=release_date,asc"
+parseAllAfter1950(link5)
