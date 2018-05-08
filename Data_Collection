@@ -9,10 +9,14 @@ GENRES = ['Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime', 'D
 ATTRIBUTES = ['Year', 'Rating', "Votes", "Gross"]
 
 def parse_votes(resultSet):
-    nvs = resultSet[0].find_all("span", {"name" :"nv"})
-    if (len(nvs) == 1):
-        return (int(nvs[0].text.replace(",", "")), np.nan)
-    return (int(nvs[0].text.replace(",", "")), nvs[1].text)
+    try:
+        nvs = resultSet[0].find_all("span", {"name" :"nv"})
+        if (len(nvs) == 1):
+            return (int(nvs[0].text.replace(",", "")), np.nan)
+        return (int(nvs[0].text.replace(",", "")), nvs[1].text)
+    except: 
+        return (0,0)
+
 
 def parse_page(html, df):
     soup = BeautifulSoup(html, 'html.parser')
@@ -80,7 +84,10 @@ def parseAllAfter1950(url):
                             "Genre_War", "Genre_Western"])
     while(url):
         html = requests.get(url).text
-        (df, url) = parse_page(html, df)
+        try:
+            (df, url) = parse_page(html, df)
+        except:
+            print(url)
         sleep(0.2)
     df.to_pickle("movies5.pkl")
     
@@ -89,8 +96,8 @@ link2 = "http://www.imdb.com/search/title?title_type=feature&release_date=1985-1
 link3 = "http://www.imdb.com/search/title?title_type=feature&release_date=2001-01-01,&num_votes=1,&countries=us&count=250&sort=release_date,asc"
 link4 = "http://www.imdb.com/search/title?title_type=feature&release_date=2009-01-01,&num_votes=1,&countries=us&count=250&sort=release_date,asc"
 link5 = "http://www.imdb.com/search/title?title_type=feature&release_date=2014-01-01,&num_votes=1,&countries=us&count=250&sort=release_date,asc"
-parseAllAfter1950(link)
-parseAllAfter1950(link2)
-parseAllAfter1950(link3)
+# parseAllAfter1950(link)
+# parseAllAfter1950(link2)
+# parseAllAfter1950(link3)
 parseAllAfter1950(link4)
 parseAllAfter1950(link5)
