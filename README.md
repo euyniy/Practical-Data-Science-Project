@@ -1,5 +1,6 @@
 # Practical Data Science Project
- - Presentation Video and ppt: https://youtu.be/VeprPsJZU0Y https://github.com/Avenirrr/Practical-Data-Science-Project/blob/master/388Final_projectppt.pdf
+ - Presentation Video: https://youtu.be/VeprPsJZU0Y
+ - Presentation ppt: https://github.com/Avenirrr/Practical-Data-Science-Project/blob/master/388Final_projectppt.pdf
  - Detailed Report: https://github.com/Avenirrr/Practical-Data-Science-Project/blob/master/final_report.ipynb
 
 We look into how the trending topics of US Films have changed since 1950 from IMDb datasets.   
